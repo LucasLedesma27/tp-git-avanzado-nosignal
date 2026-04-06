@@ -1,0 +1,34 @@
+name: Validar HTML
+
+on:
+  push:
+    branches:
+      - main
+      - feature/**
+
+jobs:
+  validar-html:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: Verificar que existan archivos HTML
+        run: |
+          if ls *.html 1> /dev/null 2>&1; then
+            echo "Archivos HTML encontrados"
+          else
+            echo "No se encontraron archivos HTML"
+            exit 1
+          fi
+
+      - name: Validar estructura básica HTML
+        run: |
+          for file in *.html; do
+            echo "Validando $file"
+            grep -q "<!DOCTYPE html>" "$file" || (echo "$file no tiene DOCTYPE" && exit 1)
+            grep -q "<html" "$file" || (echo "$file no tiene etiqueta html" && exit 1)
+            grep -q "<head>" "$file" || (echo "$file no tiene head" && exit 1)
+            grep -q "<body>" "$file" || (echo "$file no tiene body" && exit 1)
+          done
